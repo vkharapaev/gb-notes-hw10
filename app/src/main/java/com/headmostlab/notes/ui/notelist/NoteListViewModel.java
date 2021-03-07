@@ -5,9 +5,10 @@ import androidx.lifecycle.LiveData;
 import com.headmostlab.notes.model.Note;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface NoteListViewModel {
-    LiveData<ArrayList<Note>> getNotes();
+    LiveData<List<Note>> getNotes();
 
     LiveData<Note> getSelectedNote();
 

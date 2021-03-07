@@ -21,7 +21,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     public static final String NOTE_KEY = "NOTE";
     private final SavedStateHandle dataStorage;
-    private MutableLiveData<ArrayList<Note>> notesLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Note>> notesLiveData = new MutableLiveData<>();
     private MutableLiveData<Note> selectedNote = new MutableLiveData<>();
     private MutableLiveData<Integer> deletedNote = new MutableLiveData<>();
     private final NoteListRepository noteListRepository;
@@ -37,7 +37,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
         }
     }
 
-    public LiveData<ArrayList<Note>> getNotes() {
+    public LiveData<List<Note>> getNotes() {
         return notesLiveData;
     }
 
@@ -62,7 +62,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     public void deleteNote() {
         Note note = selectedNote.getValue();
         if (note != null) {
-            ArrayList<Note> notes = notesLiveData.getValue();
+            List<Note> notes = notesLiveData.getValue();
             for (int i = 0; i < notes.size(); i++) {
                 if (notes.get(i).getId().equals(note.getId())) {
                     notes.remove(i);
@@ -79,11 +79,11 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
         if (note != null) { // add
             if (note.getId() == null) {
                 note.setId(nextId());
-                ArrayList<Note> notes = notesLiveData.getValue();
+                List<Note> notes = notesLiveData.getValue();
                 notes.add(0, note);
                 notesLiveData.setValue(notes);
             } else { // update
-                ArrayList<Note> notes = notesLiveData.getValue();
+                List<Note> notes = notesLiveData.getValue();
                 for (int i = 0; i < notes.size(); i++) {
                     if (notes.get(i).getId().equals(note.getId())) {
                         notes.remove(i);
