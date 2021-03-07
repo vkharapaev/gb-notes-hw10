@@ -21,7 +21,6 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     public static final String NOTE_KEY = "NOTE";
     private final SavedStateHandle dataStorage;
-    private MutableLiveData<List<Note>> notesLiveData = new MutableLiveData<>();
     private MutableLiveData<Note> selectedNote = new MutableLiveData<>();
     private MutableLiveData<Integer> deletedNote = new MutableLiveData<>();
     private final NoteListRepository noteListRepository;
@@ -38,7 +37,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     }
 
     public LiveData<List<Note>> getNotes() {
-        return notesLiveData;
+        return noteListRepository.requestNotes();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     @Override
     public void selectNote(int position) {
-        Note note = notesLiveData.getValue().get(position);
+        Note note = noteListRepository.requestNotes().getValue().get(position);
         selectedNote.setValue(note);
         dataStorage.set(NOTE_KEY, note);
     }
@@ -60,7 +59,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     @Override
     public void deleteNote() {
-        Note note = selectedNote.getValue();
+/*        Note note = selectedNote.getValue();
         if (note != null) {
             List<Note> notes = notesLiveData.getValue();
             for (int i = 0; i < notes.size(); i++) {
@@ -71,12 +70,12 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
                     break;
                 }
             }
-        }
+        }*/
     }
 
     @Override
     public void updateNote(Note note) {
-        if (note != null) { // add
+/*        if (note != null) { // add
             if (note.getId() == null) {
                 note.setId(nextId());
                 List<Note> notes = notesLiveData.getValue();
@@ -93,7 +92,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
                     }
                 }
             }
-        }
+        }*/
     }
 
     private void loadNotes() {
@@ -114,7 +113,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     @Override
     public void onSuccess(@NonNull List<Note> notes) {
-        notesLiveData.setValue(new ArrayList<>(notes));
+//        notesLiveData.setValue(new ArrayList<>(notes));
     }
 
     @Override
