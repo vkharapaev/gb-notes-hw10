@@ -7,4 +7,5 @@ public class Constants {
     public static final String FRAGMENT_RESULT_SAVE_NOTE = "SAVE_NOTE";
     public static final String FRAGMENT_RESULT_NOTE = "NOTE";
     public static final String FRAGMENT_RESULT_UPDATE_NOTE = "UPDATE_NOTE";
+    public static final String COLLECTION_NOTES = "notes";
 }

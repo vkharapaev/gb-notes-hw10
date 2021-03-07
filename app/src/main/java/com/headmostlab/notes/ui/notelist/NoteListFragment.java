@@ -2,7 +2,6 @@ package com.headmostlab.notes.ui.notelist;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
