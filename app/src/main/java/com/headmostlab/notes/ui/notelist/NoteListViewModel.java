@@ -14,8 +14,4 @@ public interface NoteListViewModel {
     void selectNote(int position);
 
     void deselect();
-
-    void deleteNote();
-
-    void updateNote(Note note);
 }
