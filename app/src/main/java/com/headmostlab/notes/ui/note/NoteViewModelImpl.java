@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
+import com.headmostlab.notes.Event;
+import com.headmostlab.notes.Utils;
 import com.headmostlab.notes.model.Note;
-
-import java.text.DateFormat;
-import java.text.ParseException;
+import com.headmostlab.notes.repositories.NotesRepository;
 
 public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements NoteViewModel {
 
@@ -16,9 +16,11 @@ public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements N
     private final SavedStateHandle dataStorage;
     private final MutableLiveData<Note> note = new MutableLiveData<>();
     private final MutableLiveData<Note> noteToShare = new MutableLiveData<>();
+    private final NotesRepository repository;
 
-    public NoteViewModelImpl(SavedStateHandle savedState) {
+    public NoteViewModelImpl(SavedStateHandle savedState, NotesRepository _repository) {
         dataStorage = savedState;
+        repository = _repository;
         Note noteTmp = dataStorage.get(NOTE_KEY);
         if (noteTmp != null) {
             note.setValue(noteTmp);
@@ -46,15 +48,21 @@ public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements N
         noteToShare.setValue(note.getValue());
     }
 
+
     @Override
-    public void save(String title, String description, String date) {
+    public LiveData<Event<String>> save(String title, String description, String date) {
         Note note = this.note.getValue();
+        if (note == null) {
+            note = new Note();
+        }
         note.setTitle(title);
         note.setDescription(description);
-        try {
-            note.setCreationDate(DateFormat.getDateInstance().parse(date));
-        } catch (ParseException ignore) {
-        }
-        this.note.setValue(note);
+        note.setCreationDate(Utils.parseData(date));
+        return repository.update(note);
+    }
+
+    @Override
+    public LiveData<Event<String>> deleteNote() {
+        return repository.delete(note.getValue().getId());
     }
 }

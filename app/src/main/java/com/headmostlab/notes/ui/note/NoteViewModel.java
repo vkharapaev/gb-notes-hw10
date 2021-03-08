@@ -2,6 +2,7 @@ package com.headmostlab.notes.ui.note;
 
 import androidx.lifecycle.LiveData;
 
+import com.headmostlab.notes.Event;
 import com.headmostlab.notes.model.Note;
 
 public interface NoteViewModel {
@@ -14,5 +15,7 @@ public interface NoteViewModel {
 
     void share();
 
-    void save(String title, String description, String date);
+    LiveData<Event<String>> save(String title, String description, String date);
+
+    LiveData<Event<String>> deleteNote();
 }
