@@ -47,7 +47,7 @@ public class NoteFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel = new ViewModelProvider(this,
-                new NoteViewModelFactory(this, null)).get(NoteViewModelImpl.class);
+                new NoteViewModelFactory(requireActivity(), this, null)).get(NoteViewModelImpl.class);
 
         isPortrait = getResources().getConfiguration().orientation ==
                 Configuration.ORIENTATION_PORTRAIT;
