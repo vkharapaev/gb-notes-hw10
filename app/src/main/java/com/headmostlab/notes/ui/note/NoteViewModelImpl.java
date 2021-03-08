@@ -14,8 +14,8 @@ public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements N
     private static final String NOTE_KEY = "NOTE";
 
     private final SavedStateHandle dataStorage;
-    private MutableLiveData<Note> note = new MutableLiveData<>();
-    private MutableLiveData<Note> noteToShare = new MutableLiveData<>();
+    private final MutableLiveData<Note> note = new MutableLiveData<>();
+    private final MutableLiveData<Note> noteToShare = new MutableLiveData<>();
 
     public NoteViewModelImpl(SavedStateHandle savedState) {
         dataStorage = savedState;

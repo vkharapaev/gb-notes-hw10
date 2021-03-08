@@ -118,8 +118,8 @@ public class NoteFragment extends Fragment {
                 getParentFragmentManager().beginTransaction().remove(this).commit();
             }
         });
-        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), note -> show(note));
-        viewModel.getNoteToShare().observe(getViewLifecycleOwner(), note -> share(note));
+        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::show);
+        viewModel.getNoteToShare().observe(getViewLifecycleOwner(), this::share);
     }
 
     public void show(Note note) {
