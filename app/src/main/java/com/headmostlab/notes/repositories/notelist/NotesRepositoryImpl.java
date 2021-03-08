@@ -12,7 +12,7 @@ import com.headmostlab.notes.ui.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoteListRepositoryImpl implements NoteListRepository {
+public class NotesRepositoryImpl implements NotesRepository {
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final LiveData<List<Note>> notes = new NotesMutableLiveData();
 

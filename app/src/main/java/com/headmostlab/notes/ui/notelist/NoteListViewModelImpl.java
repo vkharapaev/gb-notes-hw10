@@ -1,16 +1,12 @@
 package com.headmostlab.notes.ui.notelist;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.headmostlab.notes.model.Note;
-import com.headmostlab.notes.repositories.notelist.NoteListRepository;
-import com.headmostlab.notes.repositories.notelist.NoteListRepositoryImpl;
+import com.headmostlab.notes.repositories.notelist.NotesRepository;
+import com.headmostlab.notes.repositories.notelist.NotesRepositoryImpl;
 
 import java.util.List;
 
@@ -19,10 +15,10 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     public static final String NOTE_KEY = "NOTE";
     private final SavedStateHandle dataStorage;
     private final MutableLiveData<Note> selectedNote = new MutableLiveData<>();
-    private final NoteListRepository noteListRepository;
+    private final NotesRepository notesRepository;
 
     public NoteListViewModelImpl(SavedStateHandle savedState) {
-        this.noteListRepository = new NoteListRepositoryImpl();
+        this.notesRepository = new NotesRepositoryImpl();
         loadNotes();
         dataStorage = savedState;
         Note note = savedState.get(NOTE_KEY);
@@ -32,7 +28,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     }
 
     public LiveData<List<Note>> getNotes() {
-        return noteListRepository.requestNotes();
+        return notesRepository.requestNotes();
     }
 
     @Override
@@ -42,7 +38,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     @Override
     public void selectNote(int position) {
-        Note note = noteListRepository.requestNotes().getValue().get(position);
+        Note note = notesRepository.requestNotes().getValue().get(position);
         selectedNote.setValue(note);
         dataStorage.set(NOTE_KEY, note);
     }
@@ -63,6 +59,6 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     }
 
     private void loadNotes() {
-        noteListRepository.requestNotes();
+        notesRepository.requestNotes();
     }
 }

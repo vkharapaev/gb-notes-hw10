@@ -6,6 +6,6 @@ import com.headmostlab.notes.model.Note;
 
 import java.util.List;
 
-public interface NoteListRepository {
+public interface NotesRepository {
     LiveData<List<Note>> requestNotes();
 }
