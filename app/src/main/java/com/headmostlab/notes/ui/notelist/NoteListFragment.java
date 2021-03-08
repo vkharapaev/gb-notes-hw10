@@ -61,7 +61,7 @@ public class NoteListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView();
         viewModel.getNotes().observe(getViewLifecycleOwner(), notes -> adapter.setNotes(notes));
-        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), note -> show(note));
+        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::show);
 
         if (isPortrait) {
             Fragment noteFragment = getParentFragmentManager().findFragmentByTag(NOTE_TAG);
