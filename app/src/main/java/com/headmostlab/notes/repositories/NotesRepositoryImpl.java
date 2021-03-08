@@ -1,11 +1,14 @@
 package com.headmostlab.notes.repositories;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.headmostlab.notes.Event;
 import com.headmostlab.notes.model.Note;
 import com.headmostlab.notes.ui.Constants;
 
@@ -16,9 +19,46 @@ public class NotesRepositoryImpl implements NotesRepository {
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final LiveData<List<Note>> notes = new NotesMutableLiveData();
 
+    public NotesRepositoryImpl() {
+    }
+
     @Override
     public LiveData<List<Note>> requestNotes() {
         return notes;
+    }
+
+    @Override
+    public LiveData<Event<String>> delete(@NonNull String noteId) {
+        return new DeleteNoteMutableLiveData(noteId);
+    }
+
+    @Override
+    public LiveData<Event<String>> update(@NonNull Note note) {
+        return new UpdateNoteMutableLiveData(note);
+    }
+
+    private final class UpdateNoteMutableLiveData extends MutableLiveData<Event<String>> {
+        public UpdateNoteMutableLiveData(Note note) {
+            CollectionReference collection = firebaseFirestore.collection(Constants.COLLECTION_NOTES);
+            if (note.getId() == null) {
+                collection.add(note)
+                        .addOnSuccessListener(documentReference -> setValue(new Event<>("Success")))
+                        .addOnFailureListener(e -> setValue(new Event<>("Failure")));
+            } else {
+                collection.document(note.getId()).set(note)
+                        .addOnSuccessListener(documentReference -> setValue(new Event<>("Success")))
+                        .addOnFailureListener(e -> setValue(new Event<>("Failure")));
+                ;
+            }
+        }
+    }
+
+    private final class DeleteNoteMutableLiveData extends MutableLiveData<Event<String>> {
+        public DeleteNoteMutableLiveData(String noteId) {
+            firebaseFirestore.collection(Constants.COLLECTION_NOTES).document(noteId).delete()
+                    .addOnSuccessListener(aVoid -> setValue(new Event<>("Success")))
+                    .addOnFailureListener(e -> setValue(new Event<>("Failure")));
+        }
     }
 
     private final class NotesMutableLiveData extends MutableLiveData<List<Note>> {
