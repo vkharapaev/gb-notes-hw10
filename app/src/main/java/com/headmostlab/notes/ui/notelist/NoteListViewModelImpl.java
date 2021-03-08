@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.headmostlab.notes.model.Note;
-import com.headmostlab.notes.repositories.notelist.NotesRepository;
-import com.headmostlab.notes.repositories.notelist.NotesRepositoryImpl;
+import com.headmostlab.notes.repositories.NotesRepository;
+import com.headmostlab.notes.repositories.NotesRepositoryImpl;
 
 import java.util.List;
 

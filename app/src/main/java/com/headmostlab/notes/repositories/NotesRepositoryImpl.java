@@ -1,4 +1,4 @@
-package com.headmostlab.notes.repositories.notelist;
+package com.headmostlab.notes.repositories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
