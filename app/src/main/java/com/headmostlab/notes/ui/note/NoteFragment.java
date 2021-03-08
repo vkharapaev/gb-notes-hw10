@@ -9,14 +9,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.headmostlab.notes.Event;
 import com.headmostlab.notes.R;
 import com.headmostlab.notes.databinding.FragmentNoteBinding;
 import com.headmostlab.notes.model.Note;
@@ -89,35 +92,59 @@ public class NoteFragment extends Fragment {
             note = getArguments().getParcelable(NOTE_KEY);
             viewModel.setNote(note);
         }
+
         if (isPortrait) {
             requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), onBackPressedCallback);
         }
+
         MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker().build();
         picker.addOnPositiveButtonClickListener(selection ->
                 binding.createDate.setText(DateFormat.getDateInstance().format(new Date(selection))));
         binding.createDate.setOnClickListener(v ->
                 picker.show(getParentFragmentManager(), picker.toString()));
+
         if (note == null) {
             binding.deleteNoteButton.setVisibility(View.GONE);
         } else {
             setHasOptionsMenu(true);
-            binding.deleteNoteButton.setOnClickListener(it -> {
-                deselectNote();
-                if (isPortrait) {
-                    getParentFragmentManager().popBackStack();
-                } else {
-                    getParentFragmentManager().beginTransaction().remove(this).commit();
-                }
-            });
+            binding.deleteNoteButton.setOnClickListener(it -> viewModel.deleteNote().observe(getViewLifecycleOwner(), event ->
+                    {
+                        String content = event.getContentIfNotHandled();
+                        if (content != null) {
+                            Toast.makeText(requireActivity(), content, Toast.LENGTH_SHORT).show();
+                            deselectNote();
+                            if (isPortrait) {
+                                getParentFragmentManager().popBackStack();
+                            } else {
+                                getParentFragmentManager().beginTransaction().remove(this).commit();
+                            }
+                        }
+                    }
+            ));
         }
+
         binding.saveNoteButton.setOnClickListener(it -> {
-            deselectNote();
-            if (isPortrait) {
-                getParentFragmentManager().popBackStack();
-            } else if (note == null) {
-                getParentFragmentManager().beginTransaction().remove(this).commit();
-            }
-        });
+                    LiveData<Event<String>> resultLiveData = viewModel.save(
+                            binding.title.getText().toString(),
+                            binding.description.getText().toString(),
+                            binding.createDate.getText().toString()
+                    );
+                    resultLiveData.observe(getViewLifecycleOwner(), event -> {
+                                String content = event.getContentIfNotHandled();
+                                if (content != null) {
+                                    Toast.makeText(requireActivity(), content, Toast.LENGTH_SHORT).show();
+                                    deselectNote();
+                                    if (isPortrait) {
+                                        getParentFragmentManager().popBackStack();
+                                    } else if (note == null) {
+                                        getParentFragmentManager().beginTransaction().remove(this).commit();
+                                    }
+                                }
+                            }
+                    );
+                }
+        );
+
         viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::show);
         viewModel.getNoteToShare().observe(getViewLifecycleOwner(), this::share);
     }
