@@ -47,7 +47,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     public void deselect() {
         selectedNote.setValue(null);
     }
-    
+
     private void loadNotes() {
         notesRepository.requestNotes();
     }

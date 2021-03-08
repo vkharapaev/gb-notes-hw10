@@ -23,7 +23,6 @@ import com.headmostlab.notes.model.Note;
 import com.headmostlab.notes.ui.Constants;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 
 public class NoteFragment extends Fragment {
@@ -56,7 +55,7 @@ public class NoteFragment extends Fragment {
         onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_BACK_PRESS_IN_EDIT_NOTE, new Bundle());
+                deselectNote();
                 getParentFragmentManager().popBackStack();
             }
         };
@@ -80,6 +79,10 @@ public class NoteFragment extends Fragment {
         binding = null;
     }
 
+    private void deselectNote() {
+        getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_DESELECT_NOTE, new Bundle());
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
@@ -99,7 +102,7 @@ public class NoteFragment extends Fragment {
         } else {
             setHasOptionsMenu(true);
             binding.deleteNoteButton.setOnClickListener(it -> {
-                getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_DELETE_NOTE, new Bundle());
+                deselectNote();
                 if (isPortrait) {
                     getParentFragmentManager().popBackStack();
                 } else {
@@ -108,29 +111,12 @@ public class NoteFragment extends Fragment {
             });
         }
         binding.saveNoteButton.setOnClickListener(it -> {
-            Bundle bundle = new Bundle();
-
-            Date date = null;
-            try {
-                date = DateFormat.getDateInstance().parse(binding.createDate.getText().toString());
-            } catch (ParseException ignore) {
-            }
-
-            Note updatedNote = new Note(this.note != null ? this.note.getId() : null,
-                    binding.title.getText().toString(),
-                    binding.description.getText().toString(),
-                    date
-            );
-
-            bundle.putParcelable(Constants.FRAGMENT_RESULT_NOTE, updatedNote);
-            getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_UPDATE_NOTE, bundle);
-
+            deselectNote();
             if (isPortrait) {
                 getParentFragmentManager().popBackStack();
             } else if (note == null) {
                 getParentFragmentManager().beginTransaction().remove(this).commit();
             }
-
         });
         viewModel.getSelectedNote().observe(getViewLifecycleOwner(), note -> show(note));
         viewModel.getNoteToShare().observe(getViewLifecycleOwner(), note -> share(note));
