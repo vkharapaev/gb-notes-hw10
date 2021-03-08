@@ -5,20 +5,19 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.headmostlab.notes.model.Note;
+import com.headmostlab.notes.repositories.NotesRepository;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implements NoteListViewModel {
 
     public static final String NOTE_KEY = "NOTE";
     private final SavedStateHandle dataStorage;
-    private MutableLiveData<ArrayList<Note>> notesLiveData = new MutableLiveData<>();
-    private MutableLiveData<Note> selectedNote = new MutableLiveData<>();
-    private MutableLiveData<Integer> deletedNote = new MutableLiveData<>();
-    private int lastId;
+    private final MutableLiveData<Note> selectedNote = new MutableLiveData<>();
+    private final NotesRepository notesRepository;
 
-    public NoteListViewModelImpl(SavedStateHandle savedState) {
+    public NoteListViewModelImpl(SavedStateHandle savedState, NotesRepository repository) {
+        this.notesRepository = repository;
         loadNotes();
         dataStorage = savedState;
         Note note = savedState.get(NOTE_KEY);
@@ -27,8 +26,8 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
         }
     }
 
-    public LiveData<ArrayList<Note>> getNotes() {
-        return notesLiveData;
+    public LiveData<List<Note>> getNotes() {
+        return notesRepository.requestNotes();
     }
 
     @Override
@@ -38,7 +37,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     @Override
     public void selectNote(int position) {
-        Note note = notesLiveData.getValue().get(position);
+        Note note = notesRepository.requestNotes().getValue().get(position);
         selectedNote.setValue(note);
         dataStorage.set(NOTE_KEY, note);
     }
@@ -48,57 +47,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
         selectedNote.setValue(null);
     }
 
-    @Override
-    public void deleteNote() {
-        Note note = selectedNote.getValue();
-        if (note != null) {
-            ArrayList<Note> notes = notesLiveData.getValue();
-            for (int i = 0; i < notes.size(); i++) {
-                if (notes.get(i).getId().equals(note.getId())) {
-                    notes.remove(i);
-                    notesLiveData.setValue(notes);
-                    selectedNote.setValue(null);
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void updateNote(Note note) {
-        if (note != null) { // add
-            if (note.getId() == null) {
-                note.setId(nextId());
-                ArrayList<Note> notes = notesLiveData.getValue();
-                notes.add(0, note);
-                notesLiveData.setValue(notes);
-            } else { // update
-                ArrayList<Note> notes = notesLiveData.getValue();
-                for (int i = 0; i < notes.size(); i++) {
-                    if (notes.get(i).getId().equals(note.getId())) {
-                        notes.remove(i);
-                        notes.add(i, note);
-                        notesLiveData.setValue(notes);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
     private void loadNotes() {
-        notesLiveData.setValue(createNotes());
-    }
-
-    private ArrayList<Note> createNotes() {
-        ArrayList<Note> notes = new ArrayList<>();
-        for (int i = 1; i <= 100; i++) {
-            notes.add(new Note(nextId(), "Note " + i, "Note " + i + " Description", new Date()));
-        }
-        return notes;
-    }
-
-    private String nextId() {
-        return String.valueOf(++lastId);
+        notesRepository.requestNotes();
     }
 }

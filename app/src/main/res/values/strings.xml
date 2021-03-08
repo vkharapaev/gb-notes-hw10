@@ -13,4 +13,6 @@
     <string name="user_name">Vladimir</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
+    <string name="msg_success">Success</string>
+    <string name="msg_failure">Failure</string>
 </resources>

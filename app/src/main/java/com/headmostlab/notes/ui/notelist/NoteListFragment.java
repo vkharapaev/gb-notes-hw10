@@ -2,7 +2,6 @@ package com.headmostlab.notes.ui.notelist;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,22 +42,11 @@ public class NoteListFragment extends Fragment {
                 Configuration.ORIENTATION_PORTRAIT;
 
         viewModel = new ViewModelProvider(this,
-                new NoteListViewModelFactory(this, null)).get(NoteListViewModelImpl.class);
+                new NoteListViewModelFactory(requireActivity(), this, null)).get(NoteListViewModelImpl.class);
 
-        getParentFragmentManager().setFragmentResultListener(Constants.FRAGMENT_RESULT_DELETE_NOTE, this,
-                (requestKey, result) -> viewModel.deleteNote());
-
-        getParentFragmentManager().setFragmentResultListener(Constants.FRAGMENT_RESULT_BACK_PRESS_IN_EDIT_NOTE, this,
+        getParentFragmentManager().setFragmentResultListener(Constants.FRAGMENT_RESULT_DESELECT_NOTE, this,
                 (requestKey, result) -> viewModel.deselect());
 
-        getParentFragmentManager().setFragmentResultListener(Constants.FRAGMENT_RESULT_UPDATE_NOTE, this,
-                (requestKey, result) -> {
-                    Note note = (Note)result.getParcelable(Constants.FRAGMENT_RESULT_NOTE);
-                    if (note != null) {
-                        viewModel.updateNote(note);
-                        viewModel.deselect();
-                    }
-                });
     }
 
     @Nullable
@@ -73,7 +61,7 @@ public class NoteListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView();
         viewModel.getNotes().observe(getViewLifecycleOwner(), notes -> adapter.setNotes(notes));
-        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), note -> show(note));
+        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::showNoteIfNotNull);
 
         if (isPortrait) {
             Fragment noteFragment = getParentFragmentManager().findFragmentByTag(NOTE_TAG);
@@ -83,9 +71,7 @@ public class NoteListFragment extends Fragment {
                         .commit();
             }
         }
-        binding.addNoteButton.setOnClickListener(it -> {
-            addNote();
-        });
+        binding.addNoteButton.setOnClickListener(it -> addNote());
     }
 
     private void initRecyclerView() {
@@ -101,41 +87,32 @@ public class NoteListFragment extends Fragment {
         binding = null;
     }
 
-    private void show(Note note) {
+    private void showNoteIfNotNull(Note note) {
         if (note == null) {
             return;
         }
 
-        if (isPortrait) {
-            getParentFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.container, NoteFragment.newNoteFragment(note), NOTE_TAG)
-                    .addToBackStack(null)
-                    .commit();
-        } else {
-            getParentFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(note), NOTE_TAG)
-                    .commit();
-        }
+        showNote(note);
     }
 
     private void addNote() {
 
+        showNote(null);
+    }
+
+    private void showNote(Note o) {
         if (isPortrait) {
             getParentFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .replace(R.id.container, NoteFragment.newNoteFragment(null), NOTE_TAG)
+                    .replace(R.id.container, NoteFragment.newNoteFragment(o), NOTE_TAG)
                     .addToBackStack(null)
                     .commit();
         } else {
             getParentFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(null), NOTE_TAG)
+                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(o), NOTE_TAG)
                     .commit();
         }
     }

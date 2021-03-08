@@ -1,12 +1,14 @@
 package com.headmostlab.notes.model;
 
 import android.os.Parcel;
-import android.os.ParcelUuid;
 import android.os.Parcelable;
+
+import com.google.firebase.firestore.DocumentId;
 
 import java.util.Date;
 
 public class Note implements Parcelable {
+    @DocumentId
     private String id;
     private String title;
     private String description;

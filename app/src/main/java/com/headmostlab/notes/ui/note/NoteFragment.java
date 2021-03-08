@@ -9,21 +9,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.headmostlab.notes.Event;
 import com.headmostlab.notes.R;
 import com.headmostlab.notes.databinding.FragmentNoteBinding;
 import com.headmostlab.notes.model.Note;
 import com.headmostlab.notes.ui.Constants;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 
 public class NoteFragment extends Fragment {
@@ -48,7 +50,7 @@ public class NoteFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel = new ViewModelProvider(this,
-                new NoteViewModelFactory(this, null)).get(NoteViewModelImpl.class);
+                new NoteViewModelFactory(requireActivity(), this, null)).get(NoteViewModelImpl.class);
 
         isPortrait = getResources().getConfiguration().orientation ==
                 Configuration.ORIENTATION_PORTRAIT;
@@ -56,7 +58,7 @@ public class NoteFragment extends Fragment {
         onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_BACK_PRESS_IN_EDIT_NOTE, new Bundle());
+                deselectNote();
                 getParentFragmentManager().popBackStack();
             }
         };
@@ -80,60 +82,71 @@ public class NoteFragment extends Fragment {
         binding = null;
     }
 
+    private void deselectNote() {
+        getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_DESELECT_NOTE, new Bundle());
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
             note = getArguments().getParcelable(NOTE_KEY);
             viewModel.setNote(note);
         }
+
         if (isPortrait) {
             requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), onBackPressedCallback);
         }
+
         MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker().build();
         picker.addOnPositiveButtonClickListener(selection ->
                 binding.createDate.setText(DateFormat.getDateInstance().format(new Date(selection))));
         binding.createDate.setOnClickListener(v ->
                 picker.show(getParentFragmentManager(), picker.toString()));
+
         if (note == null) {
             binding.deleteNoteButton.setVisibility(View.GONE);
         } else {
             setHasOptionsMenu(true);
-            binding.deleteNoteButton.setOnClickListener(it -> {
-                getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_DELETE_NOTE, new Bundle());
-                if (isPortrait) {
-                    getParentFragmentManager().popBackStack();
-                } else {
-                    getParentFragmentManager().beginTransaction().remove(this).commit();
-                }
-            });
+            binding.deleteNoteButton.setOnClickListener(it -> viewModel.deleteNote().observe(getViewLifecycleOwner(), event ->
+                    {
+                        Integer content = event.getContentIfNotHandled();
+                        if (content != null) {
+                            Toast.makeText(requireActivity(), getString(content), Toast.LENGTH_SHORT).show();
+                            deselectNote();
+                            if (isPortrait) {
+                                getParentFragmentManager().popBackStack();
+                            } else {
+                                getParentFragmentManager().beginTransaction().remove(this).commit();
+                            }
+                        }
+                    }
+            ));
         }
+
         binding.saveNoteButton.setOnClickListener(it -> {
-            Bundle bundle = new Bundle();
+                    LiveData<Event<Integer>> resultLiveData = viewModel.save(
+                            binding.title.getText().toString(),
+                            binding.description.getText().toString(),
+                            binding.createDate.getText().toString()
+                    );
+                    resultLiveData.observe(getViewLifecycleOwner(), event -> {
+                                Integer content = event.getContentIfNotHandled();
+                                if (content != null) {
+                                    Toast.makeText(requireActivity(), getString(content), Toast.LENGTH_SHORT).show();
+                                    deselectNote();
+                                    if (isPortrait) {
+                                        getParentFragmentManager().popBackStack();
+                                    } else if (note == null) {
+                                        getParentFragmentManager().beginTransaction().remove(this).commit();
+                                    }
+                                }
+                            }
+                    );
+                }
+        );
 
-            Date date = null;
-            try {
-                date = DateFormat.getDateInstance().parse(binding.createDate.getText().toString());
-            } catch (ParseException ignore) {
-            }
-
-            Note updatedNote = new Note(this.note != null ? this.note.getId() : null,
-                    binding.title.getText().toString(),
-                    binding.description.getText().toString(),
-                    date
-            );
-
-            bundle.putParcelable(Constants.FRAGMENT_RESULT_NOTE, updatedNote);
-            getParentFragmentManager().setFragmentResult(Constants.FRAGMENT_RESULT_UPDATE_NOTE, bundle);
-
-            if (isPortrait) {
-                getParentFragmentManager().popBackStack();
-            } else if (note == null) {
-                getParentFragmentManager().beginTransaction().remove(this).commit();
-            }
-
-        });
-        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), note -> show(note));
-        viewModel.getNoteToShare().observe(getViewLifecycleOwner(), note -> share(note));
+        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::show);
+        viewModel.getNoteToShare().observe(getViewLifecycleOwner(), this::share);
     }
 
     public void show(Note note) {
