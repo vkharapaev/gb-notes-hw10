@@ -50,7 +50,7 @@ public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements N
 
 
     @Override
-    public LiveData<Event<String>> save(String title, String description, String date) {
+    public LiveData<Event<Integer>> save(String title, String description, String date) {
         Note note = this.note.getValue();
         if (note == null) {
             note = new Note();
@@ -62,7 +62,7 @@ public class NoteViewModelImpl extends androidx.lifecycle.ViewModel implements N
     }
 
     @Override
-    public LiveData<Event<String>> deleteNote() {
+    public LiveData<Event<Integer>> deleteNote() {
         return repository.delete(note.getValue().getId());
     }
 }

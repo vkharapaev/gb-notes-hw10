@@ -15,7 +15,7 @@ public interface NoteViewModel {
 
     void share();
 
-    LiveData<Event<String>> save(String title, String description, String date);
+    LiveData<Event<Integer>> save(String title, String description, String date);
 
-    LiveData<Event<String>> deleteNote();
+    LiveData<Event<Integer>> deleteNote();
 }

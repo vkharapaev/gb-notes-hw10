@@ -109,9 +109,9 @@ public class NoteFragment extends Fragment {
             setHasOptionsMenu(true);
             binding.deleteNoteButton.setOnClickListener(it -> viewModel.deleteNote().observe(getViewLifecycleOwner(), event ->
                     {
-                        String content = event.getContentIfNotHandled();
+                        Integer content = event.getContentIfNotHandled();
                         if (content != null) {
-                            Toast.makeText(requireActivity(), content, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireActivity(), getString(content), Toast.LENGTH_SHORT).show();
                             deselectNote();
                             if (isPortrait) {
                                 getParentFragmentManager().popBackStack();
@@ -124,15 +124,15 @@ public class NoteFragment extends Fragment {
         }
 
         binding.saveNoteButton.setOnClickListener(it -> {
-                    LiveData<Event<String>> resultLiveData = viewModel.save(
+                    LiveData<Event<Integer>> resultLiveData = viewModel.save(
                             binding.title.getText().toString(),
                             binding.description.getText().toString(),
                             binding.createDate.getText().toString()
                     );
                     resultLiveData.observe(getViewLifecycleOwner(), event -> {
-                                String content = event.getContentIfNotHandled();
+                                Integer content = event.getContentIfNotHandled();
                                 if (content != null) {
-                                    Toast.makeText(requireActivity(), content, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireActivity(), getString(content), Toast.LENGTH_SHORT).show();
                                     deselectNote();
                                     if (isPortrait) {
                                         getParentFragmentManager().popBackStack();

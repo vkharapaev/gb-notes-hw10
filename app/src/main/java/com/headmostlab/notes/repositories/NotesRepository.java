@@ -11,7 +11,7 @@ import java.util.List;
 public interface NotesRepository {
     LiveData<List<Note>> requestNotes();
 
-    LiveData<Event<String>> delete(@NonNull String noteId);
+    LiveData<Event<Integer>> delete(@NonNull String noteId);
 
-    LiveData<Event<String>> update(@NonNull Note note);
+    LiveData<Event<Integer>> update(@NonNull Note note);
 }
