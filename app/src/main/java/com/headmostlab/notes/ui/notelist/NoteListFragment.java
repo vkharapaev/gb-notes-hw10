@@ -61,7 +61,7 @@ public class NoteListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initRecyclerView();
         viewModel.getNotes().observe(getViewLifecycleOwner(), notes -> adapter.setNotes(notes));
-        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::show);
+        viewModel.getSelectedNote().observe(getViewLifecycleOwner(), this::showNoteIfNotNull);
 
         if (isPortrait) {
             Fragment noteFragment = getParentFragmentManager().findFragmentByTag(NOTE_TAG);
@@ -87,41 +87,32 @@ public class NoteListFragment extends Fragment {
         binding = null;
     }
 
-    private void show(Note note) {
+    private void showNoteIfNotNull(Note note) {
         if (note == null) {
             return;
         }
 
-        if (isPortrait) {
-            getParentFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.container, NoteFragment.newNoteFragment(note), NOTE_TAG)
-                    .addToBackStack(null)
-                    .commit();
-        } else {
-            getParentFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(note), NOTE_TAG)
-                    .commit();
-        }
+        showNote(note);
     }
 
     private void addNote() {
 
+        showNote(null);
+    }
+
+    private void showNote(Note o) {
         if (isPortrait) {
             getParentFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .replace(R.id.container, NoteFragment.newNoteFragment(null), NOTE_TAG)
+                    .replace(R.id.container, NoteFragment.newNoteFragment(o), NOTE_TAG)
                     .addToBackStack(null)
                     .commit();
         } else {
             getParentFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true)
-                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(null), NOTE_TAG)
+                    .replace(R.id.childContainer, NoteFragment.newNoteFragment(o), NOTE_TAG)
                     .commit();
         }
     }
