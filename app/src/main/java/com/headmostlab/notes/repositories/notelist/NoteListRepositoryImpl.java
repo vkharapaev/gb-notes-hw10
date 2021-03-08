@@ -15,11 +15,6 @@ import java.util.List;
 public class NoteListRepositoryImpl implements NoteListRepository {
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private final LiveData<List<Note>> notes = new NotesMutableLiveData();
-    private final NoteListRepositoryCallbacks callbacks;
-
-    public NoteListRepositoryImpl(NoteListRepositoryCallbacks callbacks) {
-        this.callbacks = callbacks;
-    }
 
     @Override
     public LiveData<List<Note>> requestNotes() {

@@ -10,12 +10,11 @@ import androidx.lifecycle.SavedStateHandle;
 
 import com.headmostlab.notes.model.Note;
 import com.headmostlab.notes.repositories.notelist.NoteListRepository;
-import com.headmostlab.notes.repositories.notelist.NoteListRepositoryCallbacks;
 import com.headmostlab.notes.repositories.notelist.NoteListRepositoryImpl;
 
 import java.util.List;
 
-public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implements NoteListViewModel, NoteListRepositoryCallbacks {
+public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implements NoteListViewModel {
 
     public static final String NOTE_KEY = "NOTE";
     private final SavedStateHandle dataStorage;
@@ -23,7 +22,7 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     private final NoteListRepository noteListRepository;
 
     public NoteListViewModelImpl(SavedStateHandle savedState) {
-        this.noteListRepository = new NoteListRepositoryImpl(this);
+        this.noteListRepository = new NoteListRepositoryImpl();
         loadNotes();
         dataStorage = savedState;
         Note note = savedState.get(NOTE_KEY);
@@ -65,16 +64,5 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
 
     private void loadNotes() {
         noteListRepository.requestNotes();
-    }
-
-    @Override
-    public void onSuccess(@NonNull List<Note> notes) {
-        // TODO: 3/7/2021
-    }
-
-    @Override
-    public void onError(@Nullable String message) {
-        Log.e("TAG", "onError: " + message);
-        // TODO: 3/7/2021
     }
 }
