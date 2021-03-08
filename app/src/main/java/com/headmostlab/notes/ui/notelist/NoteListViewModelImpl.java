@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle;
 
 import com.headmostlab.notes.model.Note;
 import com.headmostlab.notes.repositories.NotesRepository;
-import com.headmostlab.notes.repositories.NotesRepositoryImpl;
 
 import java.util.List;
 
@@ -17,8 +16,8 @@ public class NoteListViewModelImpl extends androidx.lifecycle.ViewModel implemen
     private final MutableLiveData<Note> selectedNote = new MutableLiveData<>();
     private final NotesRepository notesRepository;
 
-    public NoteListViewModelImpl(SavedStateHandle savedState) {
-        this.notesRepository = new NotesRepositoryImpl();
+    public NoteListViewModelImpl(SavedStateHandle savedState, NotesRepository repository) {
+        this.notesRepository = repository;
         loadNotes();
         dataStorage = savedState;
         Note note = savedState.get(NOTE_KEY);

@@ -42,7 +42,7 @@ public class NoteListFragment extends Fragment {
                 Configuration.ORIENTATION_PORTRAIT;
 
         viewModel = new ViewModelProvider(this,
-                new NoteListViewModelFactory(this, null)).get(NoteListViewModelImpl.class);
+                new NoteListViewModelFactory(requireActivity(), this, null)).get(NoteListViewModelImpl.class);
 
         getParentFragmentManager().setFragmentResultListener(Constants.FRAGMENT_RESULT_DESELECT_NOTE, this,
                 (requestKey, result) -> viewModel.deselect());
