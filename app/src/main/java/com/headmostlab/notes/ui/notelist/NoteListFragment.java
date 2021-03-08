@@ -71,9 +71,7 @@ public class NoteListFragment extends Fragment {
                         .commit();
             }
         }
-        binding.addNoteButton.setOnClickListener(it -> {
-            addNote();
-        });
+        binding.addNoteButton.setOnClickListener(it -> addNote());
     }
 
     private void initRecyclerView() {
